@@ -4,7 +4,7 @@ import b64font
 
 try:
 	import pygame
-	import PodSixNet  # We don't actually need this imported yet, this is more just to see if the module exists (TODO: Do this correctly)
+	import networking  # Local file
 	from pygame import gfxdraw  # Unsure as to why this needs to be a separate call
 except ImportError:
 	import subprocess
@@ -73,6 +73,119 @@ def deinit(font_name: str):
 	sys.exit()
 
 
+def game_screen(screen: pygame.Surface, font_name: str, host: bool):
+	"""Game screen and logic"""
+	if host:
+		server = networking.RPSServer(localaddr=("127.0.0.1", int(25565)))
+	else:
+		client = networking.RPSClient("127.0.0.1", int(25565))
+
+	# TODO: Check if the connection is closed
+	while host or networking.connection != None:
+		pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
+		if host:
+			server.Pump()
+		else:
+			networking.connection.Pump()
+			client.Pump()
+
+		#
+		# This next section is very temporary
+		# Rock, Paper, and Scissors ( + additional ones ) will be classes
+		#
+		session = server if host else client
+
+		if (
+			session.state == networking.GameState.READY
+			and session.competitior_state == networking.GameState.READY
+		):
+			print("BOTH READY")
+			print("User:", session.selection)
+			print("Opponent:", session.competitior_selection)
+			deinit(font_name)
+			# Just exit for now, need to actually stop the client/server
+
+		hover_color = (118, 181, 197)
+		idle_color = (171, 219, 227)
+
+		# Bounding Boxes
+		rock_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 456, 480, 80)
+		paper_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 456 + 100, 480, 80)
+		scissors_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 456 + 200, 480, 80)
+
+		# Cursor logic
+		mouse_pos = pygame.mouse.get_pos()
+		collide_rock = mouse_pos[0] in range(
+			rock_rect.left, rock_rect.right
+		) and mouse_pos[1] in range(rock_rect.top, rock_rect.bottom)
+		collide_paper = mouse_pos[0] in range(
+			paper_rect.left, paper_rect.right
+		) and mouse_pos[1] in range(paper_rect.top, paper_rect.bottom)
+		collide_scissors = mouse_pos[0] in range(
+			scissors_rect.left, scissors_rect.right
+		) and mouse_pos[1] in range(scissors_rect.top, scissors_rect.bottom)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				deinit(font_name)
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				if collide_rock:
+					session.selection = networking.RPSSelection.ROCK
+					session.state = networking.GameState.READY
+					session.submit()
+				elif collide_paper:
+					session.selection = networking.RPSSelection.PAPER
+					session.state = networking.GameState.READY
+					session.submit()
+				elif collide_scissors:
+					session.selection = networking.RPSSelection.SCISSORS
+					session.state = networking.GameState.READY
+					session.submit()
+
+		# Assets
+		rock_text = render_text("ROCK", (0, 0, 0), 45, font_name)
+		paper_text = render_text("PAPER", (0, 0, 0), 45, font_name)
+		scissors_text = render_text("SCISSORS", (0, 0, 0), 45, font_name)
+
+		# Draw/Blit
+		pygame.draw.rect(
+			screen, hover_color if collide_rock else idle_color, rock_rect, 0, 15
+		)  # ROCK
+		pygame.draw.rect(
+			screen, hover_color if collide_paper else idle_color, paper_rect, 0, 15
+		)  # PAPER
+		pygame.draw.rect(
+			screen,
+			hover_color if collide_scissors else idle_color,
+			scissors_rect,
+			0,
+			15,
+		)  # SCISSORS
+		screen.blit(
+			rock_text,
+			(
+				rock_rect.centerx - rock_text.get_width() / 2,
+				rock_rect.centery - rock_text.get_height() / 2,
+			),
+		)
+		screen.blit(
+			paper_text,
+			(
+				paper_rect.centerx - paper_text.get_width() / 2,
+				paper_rect.centery - paper_text.get_height() / 2,
+			),
+		)
+		screen.blit(
+			scissors_text,
+			(
+				scissors_rect.centerx - scissors_text.get_width() / 2,
+				scissors_rect.centery - scissors_text.get_height() / 2,
+			),
+		)
+
+		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
+
 def main_menu(screen: pygame.Surface, font_name: str):
 	"""Displays a menu for selecting gamemode"""
 	hover_color = (118, 181, 197)
@@ -102,9 +215,12 @@ def main_menu(screen: pygame.Surface, font_name: str):
 				return
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if collide_client:
-					# Run client code
+					# Bring up menu for IP entry
+					game_screen(screen, font_name, False)
 					break
 				elif collide_server:
+					# Bring up menu for waiting (show IP on screen)
+					game_screen(screen, font_name, True)
 					# Run server code
 					break
 				elif collide_quit:
@@ -118,13 +234,13 @@ def main_menu(screen: pygame.Surface, font_name: str):
 
 		# Draw/Blit
 		pygame.draw.rect(
-			screen, hover_color if collide_client else idle_color, client_rect, 0, 10
+			screen, hover_color if collide_client else idle_color, client_rect, 0, 15
 		)  # Client
 		pygame.draw.rect(
-			screen, hover_color if collide_server else idle_color, server_rect, 0, 10
+			screen, hover_color if collide_server else idle_color, server_rect, 0, 15
 		)  # Server
 		pygame.draw.rect(
-			screen, hover_color if collide_quit else idle_color, quit_rect, 0, 10
+			screen, hover_color if collide_quit else idle_color, quit_rect, 0, 15
 		)  # Quit
 		screen.blit(
 			client_text,
@@ -149,8 +265,9 @@ def main_menu(screen: pygame.Surface, font_name: str):
 		)
 		screen.blit(
 			pygame.transform.smoothscale(menu_logo, (640, 360)),
-			(WINDOW_SIZE[0] / 2 - 320, 64),
+			((WINDOW_SIZE[0] - 640) / 2, 64),
 		)
+		pygame.time.Clock().tick(FRAME_RATE)
 		pygame.display.update()
 
 
@@ -158,7 +275,9 @@ if __name__ == "__main__":
 	"""Main :)"""
 	# Window Size
 	global WINDOW_SIZE  # Lazy
+	global FRAME_RATE
 	WINDOW_SIZE = (1024, 768)
+	FRAME_RATE = 60
 
 	# Init
 	font_name = init()

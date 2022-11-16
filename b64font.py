@@ -8,5 +8,6 @@ def init_font():
 	font_file = tempfile.NamedTemporaryFile(delete=False, suffix=".ttf")
 	font_file.write(base64.b64decode(FONT_ENCODED))
 	font_file.close()
+	# The NT kernel is weird and requires the file be closed
 
 	return font_file.name
