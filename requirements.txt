@@ -1,0 +1,2 @@
+PodSixNet==0.11.0
+pygame==2.1.2
