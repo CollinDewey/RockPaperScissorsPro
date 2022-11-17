@@ -70,6 +70,32 @@ def deinit():
 	exit()
 
 
+def draw_message(message, background_color, foreground_color, duration):
+	"""Uses pygame's rect and label functionality to create a rectangle with the desired message for the user"""
+	initial_time = pygame.time.get_ticks()
+
+	while pygame.time.get_ticks() < initial_time + duration:
+		message_text = render_text(message, foreground_color, 55, FONT_NAME)
+		background_rect = pygame.Rect(
+			(WINDOW_SIZE[0] / 2 - message_text.get_width() / 2 - 50),
+			250,
+			message_text.get_width() + 100,
+			200,
+		)
+
+		pygame.draw.rect(screen, background_color, background_rect, 0, 15)
+		screen.blit(
+			message_text, (WINDOW_SIZE[0] / 2 - (message_text.get_rect()[2] / 2), 320)
+		)
+
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				deinit()
+
+		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
+
 def game_screen(screen: pygame.Surface, host: bool):
 	"""Game screen and logic"""
 	if host:
@@ -79,9 +105,9 @@ def game_screen(screen: pygame.Surface, host: bool):
 
 	# TODO: Check if the connection is closed
 	first_run = True
+	session = server if host else client
 	while True:
 		pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
-		session = server if host else client
 		try:
 			session.Pump()
 		except:
@@ -107,6 +133,45 @@ def game_screen(screen: pygame.Surface, host: bool):
 			print("BOTH READY")
 			print("User:", session.selection)
 			print("Opponent:", session.competitior_selection)
+
+			# This is dumb and will not be how it's done when the project is finished (also this program only works on Python 3.10 due to this segment)
+			match session.selection:
+				case networking.RPSSelection.ROCK:
+					match session.competitior_selection:
+						case networking.RPSSelection.ROCK:
+							draw_message("Tie", (80, 80, 80), (0, 0, 0), 5000)
+						case networking.RPSSelection.PAPER:
+							draw_message(
+								"Rock loses to Paper", (80, 80, 80), (0, 0, 0), 5000
+							)
+						case networking.RPSSelection.SCISSORS:
+							draw_message(
+								"Rock beats Scissors", (80, 80, 80), (0, 0, 0), 5000
+							)
+				case networking.RPSSelection.PAPER:
+					match session.competitior_selection:
+						case networking.RPSSelection.ROCK:
+							draw_message(
+								"Paper beats Rock", (80, 80, 80), (0, 0, 0), 5000
+							)
+						case networking.RPSSelection.PAPER:
+							draw_message("Tie", (80, 80, 80), (0, 0, 0), 5000)
+						case networking.RPSSelection.SCISSORS:
+							draw_message(
+								"Paper loses to Scissors", (80, 80, 80), (0, 0, 0), 5000
+							)
+				case networking.RPSSelection.SCISSORS:
+					match session.competitior_selection:
+						case networking.RPSSelection.ROCK:
+							draw_message(
+								"Scissors lose to Rock", (80, 80, 80), (0, 0, 0), 5000
+							)
+						case networking.RPSSelection.PAPER:
+							draw_message(
+								"Scissors beat Paper", (80, 80, 80), (0, 0, 0), 5000
+							)
+						case networking.RPSSelection.SCISSORS:
+							draw_message("Tie", (80, 80, 80), (0, 0, 0), 5000)
 
 			session.close()
 			return
@@ -284,7 +349,7 @@ if __name__ == "__main__":
 	global WINDOW_SIZE  # Lazy
 	global FRAME_RATE
 	WINDOW_SIZE = (1024, 768)
-	FRAME_RATE = 30
+	FRAME_RATE = 60
 	FONT_NAME = "assets/FreeSans.ttf"
 
 	# Init
