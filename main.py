@@ -1,6 +1,5 @@
 from sys import exit
 import os
-import b64font
 
 try:
 	os.environ[
@@ -54,10 +53,10 @@ def init():
 
 	# Init
 	pygame.init()
-	return b64font.init_font()
+	return
 
 
-# Same font for all systems (Because Linux/macOS/Windows ship with different fonts)
+# Use same font for all systems (Because Linux/macOS/Windows ship with different fonts)
 def render_text(text: str, color: tuple, font_size: int, font_name: str):
 	"""Load the needed font and return the rendered text object"""
 	rendered_font = pygame.font.Font(font_name, font_size)
@@ -65,14 +64,13 @@ def render_text(text: str, color: tuple, font_size: int, font_name: str):
 	return rendered_text
 
 
-def deinit(font_name: str):
+def deinit():
 	"""De-initializes the game properly"""
 	pygame.quit()
-	os.remove(font_name)
 	exit()
 
 
-def game_screen(screen: pygame.Surface, font_name: str, host: bool):
+def game_screen(screen: pygame.Surface, host: bool):
 	"""Game screen and logic"""
 	if host:
 		server = networking.RPSServer(localaddr=("127.0.0.1", int(25565)))
@@ -135,7 +133,7 @@ def game_screen(screen: pygame.Surface, font_name: str, host: bool):
 		) and mouse_pos[1] in range(scissors_rect.top, scissors_rect.bottom)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
-				deinit(font_name)
+				deinit()
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if collide_rock:
 					session.selection = networking.RPSSelection.ROCK
@@ -151,9 +149,9 @@ def game_screen(screen: pygame.Surface, font_name: str, host: bool):
 					session.submit()
 
 		# Assets
-		rock_text = render_text("ROCK", (0, 0, 0), 45, font_name)
-		paper_text = render_text("PAPER", (0, 0, 0), 45, font_name)
-		scissors_text = render_text("SCISSORS", (0, 0, 0), 45, font_name)
+		rock_text = render_text("ROCK", (0, 0, 0), 45, FONT_NAME)
+		paper_text = render_text("PAPER", (0, 0, 0), 45, FONT_NAME)
+		scissors_text = render_text("SCISSORS", (0, 0, 0), 45, FONT_NAME)
 
 		# Draw/Blit
 		pygame.draw.rect(
@@ -195,7 +193,7 @@ def game_screen(screen: pygame.Surface, font_name: str, host: bool):
 		pygame.display.update()
 
 
-def main_menu(screen: pygame.Surface, font_name: str):
+def main_menu(screen: pygame.Surface):
 	"""Displays a menu for selecting gamemode"""
 	hover_color = (118, 181, 197)
 	idle_color = (171, 219, 227)
@@ -225,21 +223,21 @@ def main_menu(screen: pygame.Surface, font_name: str):
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if collide_client:
 					# Bring up menu for IP entry
-					game_screen(screen, font_name, False)
+					game_screen(screen, False)
 					break
 				elif collide_server:
 					# Bring up menu for waiting (show IP on screen)
-					game_screen(screen, font_name, True)
+					game_screen(screen, True)
 					# Run server code
 					break
 				elif collide_quit:
 					return
 
 		# Assets
-		client_text = render_text("Join a Game", (0, 0, 0), 45, font_name)
-		server_text = render_text("Host a Game", (0, 0, 0), 45, font_name)
-		quit_text = render_text("Exit", (0, 0, 0), 45, font_name)
-		menu_logo = pygame.image.load("logo.png")
+		client_text = render_text("Join a Game", (0, 0, 0), 45, FONT_NAME)
+		server_text = render_text("Host a Game", (0, 0, 0), 45, FONT_NAME)
+		quit_text = render_text("Exit", (0, 0, 0), 45, FONT_NAME)
+		menu_logo = pygame.image.load("assets/logo.png")
 
 		# Draw/Blit
 		pygame.draw.rect(
@@ -287,12 +285,13 @@ if __name__ == "__main__":
 	global FRAME_RATE
 	WINDOW_SIZE = (1024, 768)
 	FRAME_RATE = 30
+	FONT_NAME = "assets/FreeSans.ttf"
 
 	# Init
-	font_name = init()
+	init()
 	screen = pygame.display.set_mode(WINDOW_SIZE, vsync=1)  # VSYNC isn't guaranteed
 	pygame.display.set_caption("Rock Paper Scissors Pro")
-	main_menu(screen, font_name)
+	main_menu(screen)
 
 	# Deinit
-	deinit(font_name)
+	deinit()
