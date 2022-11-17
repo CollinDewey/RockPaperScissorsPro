@@ -92,6 +92,7 @@ class RPSClient:
 		self.connection.Send(data)
 
 	def close(self):
+		print("RPSClient closed")
 		if self.connection != None:
 			self.connection.Close()
 			self.connection = None
@@ -100,7 +101,6 @@ class RPSClient:
 		print("Connected to the server")
 
 	def Network_error(self, data):
-		print("error:", data["error"][1])
 		self.close()
 
 	def Network_disconnected(self, data):
