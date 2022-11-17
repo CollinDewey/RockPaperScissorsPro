@@ -1,11 +1,13 @@
-import sys
+from sys import exit
 import os
 import b64font
 
 try:
+	os.environ[
+		"PYGAME_HIDE_SUPPORT_PROMPT"
+	] = "hide"  # Hide "Hello from pygame community" text
 	import pygame
 	import networking  # Local file
-	from pygame import gfxdraw  # Unsure as to why this needs to be a separate call
 except ImportError:
 	import subprocess
 	import sys
@@ -51,9 +53,6 @@ def init():
 		del ctypes
 
 	# Init
-	os.environ[
-		"PYGAME_HIDE_SUPPORT_PROMPT"
-	] = "hide"  # Hide "Hello from pygame community" text
 	pygame.init()
 	return b64font.init_font()
 
@@ -70,7 +69,7 @@ def deinit(font_name: str):
 	"""De-initializes the game properly"""
 	pygame.quit()
 	os.remove(font_name)
-	sys.exit()
+	exit()
 
 
 def game_screen(screen: pygame.Surface, font_name: str, host: bool):
@@ -81,20 +80,28 @@ def game_screen(screen: pygame.Surface, font_name: str, host: bool):
 		client = networking.RPSClient("127.0.0.1", int(25565))
 
 	# TODO: Check if the connection is closed
-	while host or networking.connection != None:
+	first_run = True
+	while True:
 		pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
-		if host:
-			server.Pump()
-		else:
-			networking.connection.Pump()
-			client.Pump()
+		session = server if host else client
+		try:
+			session.Pump()
+		except:
+			# Connection failed, go back to the main menu
+			session.close()
+			return
 
 		#
 		# This next section is very temporary
 		# Rock, Paper, and Scissors ( + additional ones ) will be classes
 		#
-		session = server if host else client
 
+		# Query for the host state since the RPS could have already been selected
+		if not host and first_run:
+			first_run = False
+			client.query()
+
+		# Both users have selected their RPS
 		if (
 			session.state == networking.GameState.READY
 			and session.competitior_state == networking.GameState.READY
@@ -102,9 +109,11 @@ def game_screen(screen: pygame.Surface, font_name: str, host: bool):
 			print("BOTH READY")
 			print("User:", session.selection)
 			print("Opponent:", session.competitior_selection)
-			deinit(font_name)
-			# Just exit for now, need to actually stop the client/server
 
+			session.close()
+			return
+
+		# Graphics Junk
 		hover_color = (118, 181, 197)
 		idle_color = (171, 219, 227)
 
@@ -277,7 +286,7 @@ if __name__ == "__main__":
 	global WINDOW_SIZE  # Lazy
 	global FRAME_RATE
 	WINDOW_SIZE = (1024, 768)
-	FRAME_RATE = 60
+	FRAME_RATE = 30
 
 	# Init
 	font_name = init()
