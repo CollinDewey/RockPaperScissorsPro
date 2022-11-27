@@ -1,19 +1,6 @@
 from PodSixNet.Server import Server
 from PodSixNet.Channel import Channel
 from PodSixNet.EndPoint import EndPoint
-from enum import Enum
-
-
-class GameState(Enum):
-	WAITING = 0
-	READY = 1
-
-
-class RPSSelection(Enum):
-	INVALID = 0
-	ROCK = 1
-	PAPER = 2
-	SCISSORS = 3
 
 
 class RPSChannel(Channel):
@@ -26,11 +13,11 @@ class RPSChannel(Channel):
 
 	def Network_change_state(self, data):
 		print("Got", data)
-		self._server.competitior_state = GameState[data["message"].split(".")[1]]
+		self._server.competitior_state = data["message"]
 
 	def Network_change_selection(self, data):
 		print("Got", data)
-		self._server.competitior_selection = RPSSelection[data["message"].split(".")[1]]
+		self._server.competitior_selection = data["message"]
 
 	def Network_query(self, data):
 		self.Send(
@@ -44,10 +31,10 @@ class RPSServer(Server):
 
 	def __init__(self, *args, **kwargs):
 		Server.__init__(self, *args, **kwargs)
-		self.state = GameState.WAITING
-		self.competitior_state = GameState.WAITING
-		self.selection = RPSSelection.INVALID
-		self.competitior_selection = RPSSelection.INVALID
+		self.state = ""
+		self.competitior_state = ""
+		self.selection = ""
+		self.competitior_selection = ""
 		self.channel = None
 		print("Server launched")
 
@@ -68,10 +55,10 @@ class RPSClient:
 	def __init__(self, host, port):
 		self.connection = None
 		self.Connect((host, port))
-		self.state = GameState.WAITING
-		self.competitior_state = GameState.WAITING
-		self.selection = RPSSelection.INVALID
-		self.competitior_selection = RPSSelection.INVALID
+		self.state = ""
+		self.competitior_state = ""
+		self.selection = ""
+		self.competitior_selection = ""
 		print("RPSClient started")
 
 	def Connect(self, *args, **kwargs):
@@ -108,11 +95,11 @@ class RPSClient:
 
 	def Network_change_state(self, data):
 		print("Got", data)
-		self.competitior_state = GameState[data["message"].split(".")[1]]
+		self.competitior_state = data["message"]
 
 	def Network_change_selection(self, data):
 		print("Got", data)
-		self.competitior_selection = RPSSelection[data["message"].split(".")[1]]
+		self.competitior_selection = data["message"]
 
 	def submit(self):
 		if self.connection == None:

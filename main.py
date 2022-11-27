@@ -1,4 +1,5 @@
 from sys import exit
+from items import items
 import os
 
 try:
@@ -96,12 +97,28 @@ def draw_message(message, background_color, foreground_color, duration):
 		pygame.display.update()
 
 
+def ip_selection_screen(screen: pygame.Surface):
+	"""Uses pygame to ask the user for an IP address and returns the IP. Returns string with IP"""
+	# stub function
+	while True:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				deinit()
+
+		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
+		# temp
+		return "127.0.0.1"
+
+
 def game_screen(screen: pygame.Surface, host: bool):
 	"""Game screen and logic"""
 	if host:
 		server = networking.RPSServer(localaddr=("127.0.0.1", int(25565)))
 	else:
-		client = networking.RPSClient("127.0.0.1", int(25565))
+		ip = ip_selection_screen(screen)
+		client = networking.RPSClient(ip, int(25565))
 
 	# TODO: Check if the connection is closed
 	first_run = True
@@ -126,52 +143,50 @@ def game_screen(screen: pygame.Surface, host: bool):
 			client.query()
 
 		# Both users have selected their RPS
-		if (
-			session.state == networking.GameState.READY
-			and session.competitior_state == networking.GameState.READY
-		):
+		if session.state == "ready" and session.competitior_state == "ready":
 			print("BOTH READY")
 			print("User:", session.selection)
 			print("Opponent:", session.competitior_selection)
 
-			# This is dumb and will not be how it's done when the project is finished (also this program only works on Python 3.10 due to this segment)
-			match session.selection:
-				case networking.RPSSelection.ROCK:
-					match session.competitior_selection:
-						case networking.RPSSelection.ROCK:
-							draw_message("Tie", (80, 80, 80), (0, 0, 0), 5000)
-						case networking.RPSSelection.PAPER:
-							draw_message(
-								"Rock loses to Paper", (80, 80, 80), (0, 0, 0), 5000
-							)
-						case networking.RPSSelection.SCISSORS:
-							draw_message(
-								"Rock beats Scissors", (80, 80, 80), (0, 0, 0), 5000
-							)
-				case networking.RPSSelection.PAPER:
-					match session.competitior_selection:
-						case networking.RPSSelection.ROCK:
-							draw_message(
-								"Paper beats Rock", (80, 80, 80), (0, 0, 0), 5000
-							)
-						case networking.RPSSelection.PAPER:
-							draw_message("Tie", (80, 80, 80), (0, 0, 0), 5000)
-						case networking.RPSSelection.SCISSORS:
-							draw_message(
-								"Paper loses to Scissors", (80, 80, 80), (0, 0, 0), 5000
-							)
-				case networking.RPSSelection.SCISSORS:
-					match session.competitior_selection:
-						case networking.RPSSelection.ROCK:
-							draw_message(
-								"Scissors lose to Rock", (80, 80, 80), (0, 0, 0), 5000
-							)
-						case networking.RPSSelection.PAPER:
-							draw_message(
-								"Scissors beat Paper", (80, 80, 80), (0, 0, 0), 5000
-							)
-						case networking.RPSSelection.SCISSORS:
-							draw_message("Tie", (80, 80, 80), (0, 0, 0), 5000)
+			# Win
+			if items[session.selection].defeats(
+				session.competitior_selection
+			) and not items[session.competitior_selection].defeats(session.selection):
+				print("I won")
+				draw_message(
+					session.selection
+					+ " "
+					+ items[session.selection].win
+					+ " "
+					+ session.competitior_selection,
+					(80, 80, 80),
+					(0, 0, 0),
+					5000,
+				)
+			# Lose
+			elif not items[session.selection].defeats(
+				session.competitior_selection
+			) and items[session.competitior_selection].defeats(session.selection):
+				print("I lost")
+				draw_message(
+					session.selection
+					+ " "
+					+ items[session.selection].lose
+					+ " "
+					+ session.competitior_selection,
+					(80, 80, 80),
+					(0, 0, 0),
+					5000,
+				)
+			# Tie
+			else:
+				print("I tied")
+				draw_message(
+					session.selection + " ties " + session.competitior_selection,
+					(80, 80, 80),
+					(0, 0, 0),
+					5000,
+				)
 
 			session.close()
 			return
@@ -201,16 +216,16 @@ def game_screen(screen: pygame.Surface, host: bool):
 				deinit()
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if collide_rock:
-					session.selection = networking.RPSSelection.ROCK
-					session.state = networking.GameState.READY
+					session.selection = "Rock"
+					session.state = "ready"
 					session.submit()
 				elif collide_paper:
-					session.selection = networking.RPSSelection.PAPER
-					session.state = networking.GameState.READY
+					session.selection = "Paper"
+					session.state = "ready"
 					session.submit()
 				elif collide_scissors:
-					session.selection = networking.RPSSelection.SCISSORS
-					session.state = networking.GameState.READY
+					session.selection = "Scissors"
+					session.state = "ready"
 					session.submit()
 
 		# Assets
@@ -287,13 +302,10 @@ def main_menu(screen: pygame.Surface):
 				return
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if collide_client:
-					# Bring up menu for IP entry
 					game_screen(screen, False)
 					break
 				elif collide_server:
-					# Bring up menu for waiting (show IP on screen)
 					game_screen(screen, True)
-					# Run server code
 					break
 				elif collide_quit:
 					return
