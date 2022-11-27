@@ -112,6 +112,40 @@ def ip_selection_screen(screen: pygame.Surface):
 		return "127.0.0.1"
 
 
+def battle(screen: pygame.Surface, selection: str, competitior_selection: str):
+	# Win
+	if items[selection].defeats(competitior_selection) and not items[
+		competitior_selection
+	].defeats(selection):
+		print("I won")
+		draw_message(
+			selection + " " + items[selection].win + " " + competitior_selection,
+			(80, 80, 80),
+			(0, 0, 0),
+			5000,
+		)
+	# Lose
+	elif not items[selection].defeats(competitior_selection) and items[
+		competitior_selection
+	].defeats(selection):
+		print("I lost")
+		draw_message(
+			selection + " " + items[selection].lose + " " + competitior_selection,
+			(80, 80, 80),
+			(0, 0, 0),
+			5000,
+		)
+	# Tie
+	else:
+		print("I tied")
+		draw_message(
+			selection + " ties " + competitior_selection,
+			(80, 80, 80),
+			(0, 0, 0),
+			5000,
+		)
+
+
 def game_screen(screen: pygame.Surface, host: bool):
 	"""Game screen and logic"""
 	if host:
@@ -147,48 +181,10 @@ def game_screen(screen: pygame.Surface, host: bool):
 			print("BOTH READY")
 			print("User:", session.selection)
 			print("Opponent:", session.competitior_selection)
-
-			# Win
-			if items[session.selection].defeats(
-				session.competitior_selection
-			) and not items[session.competitior_selection].defeats(session.selection):
-				print("I won")
-				draw_message(
-					session.selection
-					+ " "
-					+ items[session.selection].win
-					+ " "
-					+ session.competitior_selection,
-					(80, 80, 80),
-					(0, 0, 0),
-					5000,
-				)
-			# Lose
-			elif not items[session.selection].defeats(
-				session.competitior_selection
-			) and items[session.competitior_selection].defeats(session.selection):
-				print("I lost")
-				draw_message(
-					session.selection
-					+ " "
-					+ items[session.selection].lose
-					+ " "
-					+ session.competitior_selection,
-					(80, 80, 80),
-					(0, 0, 0),
-					5000,
-				)
-			# Tie
-			else:
-				print("I tied")
-				draw_message(
-					session.selection + " ties " + session.competitior_selection,
-					(80, 80, 80),
-					(0, 0, 0),
-					5000,
-				)
-
 			session.close()
+
+			battle(screen, session.selection, session.competitior_selection)
+
 			return
 
 		# Graphics Junk
