@@ -26,9 +26,9 @@ class Item:
 
 
 def main():
-	rock = Item("Rock", "", "smashes")
-	paper = Item("Paper", "")
-	scissors = Item("Scissors", "", "cuts up")
+	rock = Item("Rock", "assets/items/rock.png", "smashes")
+	paper = Item("Paper", "assets/items/paper.png")
+	scissors = Item("Scissors", "assets/items/scissors.png", "cuts up")
 
 	rock.set_defeats(scissors)
 	paper.set_defeats(rock)
