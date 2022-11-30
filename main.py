@@ -112,68 +112,92 @@ def ip_selection_screen(screen: pygame.Surface):
 		return "127.0.0.1"
 
 
-def battle(screen: pygame.Surface, selection: str, competitior_selection: str):
+def battle(screen: pygame.Surface, selection: str, competitor_selection: str):
+	"""Uses pygame to display a quick battle animation"""
+
+	# Load assets
+	# background_image = pygame.image.load("assets/battle.png")
+	# explosion_image = pygame.image.load("assets/explosion.png")
+	# explosion_sound = pygame.mixer.Sound("assets/explosion.wav")
+	selection_image = pygame.image.load(items[selection].image_path)
+	competitor_selection_image = pygame.image.load(
+		items[competitor_selection].image_path
+	)
+
+	# Animation Loop - Range is duration in seconds * 60
+	for i in range(256):
+		pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
+
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				deinit()
+
+		screen.blit(
+			selection_image,
+			(
+				i * 2 - selection_image.get_width() / 2,
+				(WINDOW_SIZE[1] - selection_image.get_height()) / 2,
+			),
+		)
+		screen.blit(
+			competitor_selection_image,
+			(
+				WINDOW_SIZE[0] - competitor_selection_image.get_width() / 2 - i * 2,
+				(WINDOW_SIZE[1] - competitor_selection_image.get_height()) / 2,
+			),
+		)
+
+		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
+	# Draw the explosion image and play the sound
+
+	# pygame.mixer.Sound.play(explosion_sound)
+	pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
+	# screen.blit(explosion_image, ((WINDOW_SIZE[0] - explosion_image.get_width()) / 2, (WINDOW_SIZE[1] - explosion_image.get_height()) / 2))
+
+	for i in range(30):  # Wait half a second
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				deinit()
+
+		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
+	# Draw victorious item and display message
+
 	# Win
-	#
-	#
-	#
-	#
-	#
-	# Code added by Brayden (Start)
-	from tkinter import *
-	import time
-
-	WIDTH = 1000
-	HEIGHT = 1000
-	xVelocity = 4
-	yVelocity = 0
-	window = Tk()
-
-	canvas = Canvas(window,width=WIDTH,height=HEIGHT)
-	canvas.pack()
-
-	photo_image = PhotoImage(file='paper.png')
-	my_image = canvas.create_image(0,300,image=photo_image,anchor=W)
-
-	image_width = photo_image.width()
-	image_height = photo_image.height()
-
-	while True:
-    	coordinates = canvas.coords(my_image)
-    	print(coordinates)
-    	if(coordinates[0]>=(WIDTH-image_width) or coordinates[0]<0):
-        	xVelocity = -xVelocity
-    	if (coordinates[1]>=(HEIGHT-image_height) or coordinates[1]<0):
-        	yVelocity = -yVelocity
-    	canvas.move(my_image,xVelocity,yVelocity)
-    	window.update()
-    	time.sleep(0.01)
-
-	window.mainloop()
-	# Code added by Brayden (End)
-	#
-	#
-	#
-	#
-	#
-	
-	if items[selection].defeats(competitior_selection) and not items[
-		competitior_selection
+	if items[selection].defeats(competitor_selection) and not items[
+		competitor_selection
 	].defeats(selection):
 		print("I won")
+		screen.blit(
+			selection_image,
+			(
+				(WINDOW_SIZE[0] - selection_image.get_width()) / 2,
+				(WINDOW_SIZE[1] - selection_image.get_height()) / 2,
+			),
+		)
 		draw_message(
-			selection + " " + items[selection].win + " " + competitior_selection,
+			selection + " " + items[selection].win + " " + competitor_selection,
 			(80, 80, 80),
 			(0, 0, 0),
 			5000,
 		)
 	# Lose
-	elif not items[selection].defeats(competitior_selection) and items[
-		competitior_selection
+	elif not items[selection].defeats(competitor_selection) and items[
+		competitor_selection
 	].defeats(selection):
 		print("I lost")
+		screen.blit(
+			competitor_selection_image,
+			(
+				(WINDOW_SIZE[0] - competitor_selection_image.get_width()) / 2,
+				(WINDOW_SIZE[1] - competitor_selection_image.get_height()) / 2,
+			),
+		)
 		draw_message(
-			selection + " " + items[selection].lose + " " + competitior_selection,
+			selection + " " + items[selection].lose + " " + competitor_selection,
 			(80, 80, 80),
 			(0, 0, 0),
 			5000,
@@ -181,8 +205,24 @@ def battle(screen: pygame.Surface, selection: str, competitior_selection: str):
 	# Tie
 	else:
 		print("I tied")
+		screen.blit(
+			selection_image,
+			(
+				(WINDOW_SIZE[0] - selection_image.get_width()) / 2
+				- selection_image.get_width(),
+				(WINDOW_SIZE[1] - selection_image.get_height()) / 2,
+			),
+		)
+		screen.blit(
+			competitor_selection_image,
+			(
+				(WINDOW_SIZE[0] - competitor_selection_image.get_width()) / 2
+				+ competitor_selection_image.get_width(),
+				(WINDOW_SIZE[1] - competitor_selection_image.get_height()) / 2,
+			),
+		)
 		draw_message(
-			selection + " ties " + competitior_selection,
+			selection + " ties " + competitor_selection,
 			(80, 80, 80),
 			(0, 0, 0),
 			5000,
@@ -220,13 +260,13 @@ def game_screen(screen: pygame.Surface, host: bool):
 			client.query()
 
 		# Both users have selected their RPS
-		if session.state == "ready" and session.competitior_state == "ready":
+		if session.state == "ready" and session.competitor_state == "ready":
 			print("BOTH READY")
 			print("User:", session.selection)
-			print("Opponent:", session.competitior_selection)
+			print("Opponent:", session.competitor_selection)
 			session.close()
 
-			battle(screen, session.selection, session.competitior_selection)
+			battle(screen, session.selection, session.competitor_selection)
 
 			return
 

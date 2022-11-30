@@ -13,11 +13,11 @@ class RPSChannel(Channel):
 
 	def Network_change_state(self, data):
 		print("Got", data)
-		self._server.competitior_state = data["message"]
+		self._server.competitor_state = data["message"]
 
 	def Network_change_selection(self, data):
 		print("Got", data)
-		self._server.competitior_selection = data["message"]
+		self._server.competitor_selection = data["message"]
 
 	def Network_query(self, data):
 		self.Send(
@@ -32,9 +32,9 @@ class RPSServer(Server):
 	def __init__(self, *args, **kwargs):
 		Server.__init__(self, *args, **kwargs)
 		self.state = ""
-		self.competitior_state = ""
+		self.competitor_state = ""
 		self.selection = ""
-		self.competitior_selection = ""
+		self.competitor_selection = ""
 		self.channel = None
 		print("Server launched")
 
@@ -56,9 +56,9 @@ class RPSClient:
 		self.connection = None
 		self.Connect((host, port))
 		self.state = ""
-		self.competitior_state = ""
+		self.competitor_state = ""
 		self.selection = ""
-		self.competitior_selection = ""
+		self.competitor_selection = ""
 		print("RPSClient started")
 
 	def Connect(self, *args, **kwargs):
@@ -95,11 +95,11 @@ class RPSClient:
 
 	def Network_change_state(self, data):
 		print("Got", data)
-		self.competitior_state = data["message"]
+		self.competitor_state = data["message"]
 
 	def Network_change_selection(self, data):
 		print("Got", data)
-		self.competitior_selection = data["message"]
+		self.competitor_selection = data["message"]
 
 	def submit(self):
 		if self.connection == None:
