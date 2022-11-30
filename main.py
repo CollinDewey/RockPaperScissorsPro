@@ -79,14 +79,14 @@ def draw_message(message, background_color, foreground_color, duration):
 		message_text = render_text(message, foreground_color, 55, FONT_NAME)
 		background_rect = pygame.Rect(
 			(WINDOW_SIZE[0] / 2 - message_text.get_width() / 2 - 50),
-			250,
+			550,
 			message_text.get_width() + 100,
 			200,
 		)
 
 		pygame.draw.rect(screen, background_color, background_rect, 0, 15)
 		screen.blit(
-			message_text, (WINDOW_SIZE[0] / 2 - (message_text.get_rect()[2] / 2), 320)
+			message_text, (WINDOW_SIZE[0] / 2 - (message_text.get_rect()[2] / 2), 620)
 		)
 
 		for event in pygame.event.get():
