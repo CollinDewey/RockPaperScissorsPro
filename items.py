@@ -29,10 +29,16 @@ def main():
 	rock = Item("Rock", "assets/items/rock.png", "smashes")
 	paper = Item("Paper", "assets/items/paper.png")
 	scissors = Item("Scissors", "assets/items/scissors.png", "cuts up")
+	shield = Item("Shield", "proetects")
+	boom = Item("Boom", "destroys")
+	pierce = Item("Pierce", "pierces")
 
-	rock.set_defeats(scissors)
-	paper.set_defeats(rock)
-	scissors.set_defeats(paper)
+	rock.set_defeats(scissors, boom, pierce)
+	paper.set_defeats(rock, pierce)
+	scissors.set_defeats(paper, pierce)
+	shield.set_defeats(boom)
+	boom.set_defeats(scissors, pierce, paper)
+	pierce.set_defeats(shield)
 
 
 main()
