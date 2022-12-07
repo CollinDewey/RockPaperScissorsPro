@@ -106,10 +106,10 @@ def ip_selection_screen(screen: pygame.Surface):
 	#print("Your IP: ", local_IP)
 	#user_text = input("Please enter your opponents IP address: ")
 
-	addressbox = pygame.Rect((25,25), (500,30))
+	addressbox = pygame.Rect((1024/3,768/2), (1024/3,30))
 	#locating and sizing box
 	#choosing font for box
-	font = pygame.font.SysFont('Times New Roman', 15)
+	font = pygame.font.SysFont(FONT_NAME, 25)
 	ipaddress = ''
 	active = False
 	while True:
@@ -122,7 +122,11 @@ def ip_selection_screen(screen: pygame.Surface):
 				else:
 					active = False
 			if event.type == pygame.KEYDOWN:
-				ipaddress += event.unicode
+				if event.key == pygame.K_BACKSPACE:
+					ipaddress = ipaddress[:-1]
+				else:
+					ipaddress += event.unicode
+			screen.fill('white')
 		if active:
 			color = pygame.Color('black')
 		else:
@@ -131,8 +135,9 @@ def ip_selection_screen(screen: pygame.Surface):
 		pygame.draw.rect(screen,color, addressbox,1)
 		surface = font.render(ipaddress, True, 'black')
 		screen.blit(surface, (addressbox.x +5, addressbox.y +10))
-		pygame.display.update()
 		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
 
 		#return "127.0.0.1"
 
