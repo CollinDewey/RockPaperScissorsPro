@@ -99,17 +99,42 @@ def draw_message(message, background_color, foreground_color, duration):
 
 def ip_selection_screen(screen: pygame.Surface):
 	"""Uses pygame to ask the user for an IP address and returns the IP. Returns string with IP"""
-	# stub function
+
+	#import socket
+	#host = socket.gethostname()
+	#local_IP = socket.gethostbyname(host)
+	#print("Your IP: ", local_IP)
+	#user_text = input("Please enter your opponents IP address: ")
+
+	addressbox = pygame.Rect((25,25), (500,30))
+	#locating and sizing box
+	#choosing font for box
+	font = pygame.font.SysFont('Times New Roman', 15)
+	ipaddress = ''
+	active = False
 	while True:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				deinit()
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				if addressbox.collidepoint(event.pos):
+					active = True
+				else:
+					active = False
+			if event.type == pygame.KEYDOWN:
+				ipaddress += event.unicode
+		if active:
+			color = pygame.Color('black')
+		else:
+			color = pygame.Color('gray')
 
-		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.draw.rect(screen,color, addressbox,1)
+		surface = font.render(ipaddress, True, 'black')
+		screen.blit(surface, (addressbox.x +5, addressbox.y +10))
 		pygame.display.update()
+		pygame.time.Clock().tick(FRAME_RATE)
 
-		# temp
-		return "127.0.0.1"
+		#return "127.0.0.1"
 
 
 def battle(screen: pygame.Surface, selection: str, competitior_selection: str):
