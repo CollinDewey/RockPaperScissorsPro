@@ -29,7 +29,7 @@ def main():
 	rock = Item("Rock", "assets/items/rock.png", "smashes")
 	paper = Item("Paper", "assets/items/paper.png")
 	scissors = Item("Scissors", "assets/items/scissors.png", "cuts up")
-	shield = Item("Shield", "proetects")
+	shield = Item("Shield", "protects")
 	boom = Item("Boom", "destroys")
 	pierce = Item("Pierce", "pierces")
 
