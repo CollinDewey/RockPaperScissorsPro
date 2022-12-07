@@ -79,14 +79,14 @@ def draw_message(message, background_color, foreground_color, duration):
 		message_text = render_text(message, foreground_color, 55, FONT_NAME)
 		background_rect = pygame.Rect(
 			(WINDOW_SIZE[0] / 2 - message_text.get_width() / 2 - 50),
-			250,
+			550,
 			message_text.get_width() + 100,
 			200,
 		)
 
 		pygame.draw.rect(screen, background_color, background_rect, 0, 15)
 		screen.blit(
-			message_text, (WINDOW_SIZE[0] / 2 - (message_text.get_rect()[2] / 2), 320)
+			message_text, (WINDOW_SIZE[0] / 2 - (message_text.get_rect()[2] / 2), 620)
 		)
 
 		for event in pygame.event.get():
@@ -106,15 +106,12 @@ def ip_selection_screen(screen: pygame.Surface):
 	#print("Your IP: ", local_IP)
 	#user_text = input("Please enter your opponents IP address: ")
 
-	addressbox = pygame.Rect((1024/3,768/2), (341,30))
+	addressbox = pygame.Rect((25,25), (500,30))
 	#locating and sizing box
 	#choosing font for box
-	font = pygame.font.SysFont(FONT_NAME, 25)
+	font = pygame.font.SysFont('Times New Roman', 15)
 	ipaddress = ''
 	active = False
-
-
-
 	while True:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -125,45 +122,107 @@ def ip_selection_screen(screen: pygame.Surface):
 				else:
 					active = False
 			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_BACKSPACE:
-					ipaddress = ipaddress[:-1]
-				else:
-					ipaddress += event.unicode
-		screen.fill('white')
+				ipaddress += event.unicode
 		if active:
 			color = pygame.Color('black')
 		else:
 			color = pygame.Color('gray')
+
 		pygame.draw.rect(screen,color, addressbox,1)
 		surface = font.render(ipaddress, True, 'black')
 		screen.blit(surface, (addressbox.x +5, addressbox.y +10))
-		pygame.time.Clock().tick(FRAME_RATE)
 		pygame.display.update()
-
+		pygame.time.Clock().tick(FRAME_RATE)
 
 		#return "127.0.0.1"
 
 
+def battle(screen: pygame.Surface, selection: str, competitor_selection: str):
+	"""Uses pygame to display a quick battle animation"""
 
-def battle(screen: pygame.Surface, selection: str, competitior_selection: str):
+	# Load assets
+	# background_image = pygame.image.load("assets/battle.png")
+	# explosion_image = pygame.image.load("assets/explosion.png")
+	# explosion_sound = pygame.mixer.Sound("assets/explosion.wav")
+	selection_image = pygame.image.load(items[selection].image_path)
+	competitor_selection_image = pygame.image.load(
+		items[competitor_selection].image_path
+	)
+
+	# Animation Loop - Range is duration in seconds * 60
+	for i in range(256):
+		pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
+
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				deinit()
+
+		screen.blit(
+			selection_image,
+			(
+				i * 2 - selection_image.get_width() / 2,
+				(WINDOW_SIZE[1] - selection_image.get_height()) / 2,
+			),
+		)
+		screen.blit(
+			competitor_selection_image,
+			(
+				WINDOW_SIZE[0] - competitor_selection_image.get_width() / 2 - i * 2,
+				(WINDOW_SIZE[1] - competitor_selection_image.get_height()) / 2,
+			),
+		)
+
+		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
+	# Draw the explosion image and play the sound
+
+	# pygame.mixer.Sound.play(explosion_sound)
+	pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
+	# screen.blit(explosion_image, ((WINDOW_SIZE[0] - explosion_image.get_width()) / 2, (WINDOW_SIZE[1] - explosion_image.get_height()) / 2))
+
+	for i in range(30):  # Wait half a second
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				deinit()
+
+		pygame.time.Clock().tick(FRAME_RATE)
+		pygame.display.update()
+
+	# Draw victorious item and display message
+
 	# Win
-	if items[selection].defeats(competitior_selection) and not items[
-		competitior_selection
+	if items[selection].defeats(competitor_selection) and not items[
+		competitor_selection
 	].defeats(selection):
 		print("I won")
+		screen.blit(
+			selection_image,
+			(
+				(WINDOW_SIZE[0] - selection_image.get_width()) / 2,
+				(WINDOW_SIZE[1] - selection_image.get_height()) / 2,
+			),
+		)
 		draw_message(
-			selection + " " + items[selection].win + " " + competitior_selection,
+			selection + " " + items[selection].win + " " + competitor_selection,
 			(80, 80, 80),
 			(0, 0, 0),
 			5000,
 		)
 	# Lose
-	elif not items[selection].defeats(competitior_selection) and items[
-		competitior_selection
+	elif not items[selection].defeats(competitor_selection) and items[
+		competitor_selection
 	].defeats(selection):
 		print("I lost")
+		screen.blit(
+			competitor_selection_image,
+			(
+				(WINDOW_SIZE[0] - competitor_selection_image.get_width()) / 2,
+				(WINDOW_SIZE[1] - competitor_selection_image.get_height()) / 2,
+			),
+		)
 		draw_message(
-			selection + " " + items[selection].lose + " " + competitior_selection,
+			selection + " " + items[selection].lose + " " + competitor_selection,
 			(80, 80, 80),
 			(0, 0, 0),
 			5000,
@@ -171,8 +230,24 @@ def battle(screen: pygame.Surface, selection: str, competitior_selection: str):
 	# Tie
 	else:
 		print("I tied")
+		screen.blit(
+			selection_image,
+			(
+				(WINDOW_SIZE[0] - selection_image.get_width()) / 2
+				- selection_image.get_width(),
+				(WINDOW_SIZE[1] - selection_image.get_height()) / 2,
+			),
+		)
+		screen.blit(
+			competitor_selection_image,
+			(
+				(WINDOW_SIZE[0] - competitor_selection_image.get_width()) / 2
+				+ competitor_selection_image.get_width(),
+				(WINDOW_SIZE[1] - competitor_selection_image.get_height()) / 2,
+			),
+		)
 		draw_message(
-			selection + " ties " + competitior_selection,
+			selection + " ties " + competitor_selection,
 			(80, 80, 80),
 			(0, 0, 0),
 			5000,
@@ -210,13 +285,13 @@ def game_screen(screen: pygame.Surface, host: bool):
 			client.query()
 
 		# Both users have selected their RPS
-		if session.state == "ready" and session.competitior_state == "ready":
+		if session.state == "ready" and session.competitor_state == "ready":
 			print("BOTH READY")
 			print("User:", session.selection)
-			print("Opponent:", session.competitior_selection)
+			print("Opponent:", session.competitor_selection)
 			session.close()
 
-			battle(screen, session.selection, session.competitior_selection)
+			battle(screen, session.selection, session.competitor_selection)
 
 			return
 
