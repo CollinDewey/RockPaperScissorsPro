@@ -356,15 +356,9 @@ def main_menu(screen: pygame.Surface):
 
 		# Cursor logic
 		mouse_pos = pygame.mouse.get_pos()
-		collide_client = mouse_pos[0] in range(
-			client_rect.left, client_rect.right
-		) and mouse_pos[1] in range(client_rect.top, client_rect.bottom)
-		collide_server = mouse_pos[0] in range(
-			server_rect.left, server_rect.right
-		) and mouse_pos[1] in range(server_rect.top, server_rect.bottom)
-		collide_quit = mouse_pos[0] in range(
-			quit_rect.left, quit_rect.right
-		) and mouse_pos[1] in range(quit_rect.top, quit_rect.bottom)
+		collide_client = client_rect.collidepoint(mouse_pos)
+		collide_server = server_rect.collidepoint(mouse_pos)
+		collide_quit = quit_rect.collidepoint(mouse_pos)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				return
