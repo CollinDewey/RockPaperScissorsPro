@@ -71,7 +71,7 @@ def deinit():
 	exit()
 
 
-def draw_message(message, background_color, foreground_color, duration):
+def draw_message(message: str, background_color: pygame.color, foreground_color: pygame.color, duration: int):
 	"""Uses pygame's rect and label functionality to create a rectangle with the desired message for the user"""
 	initial_time = pygame.time.get_ticks()
 
