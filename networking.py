@@ -2,21 +2,25 @@ from PodSixNet.Server import Server
 from PodSixNet.Channel import Channel
 from PodSixNet.EndPoint import EndPoint
 
+logging = False
 
 class RPSChannel(Channel):
 	def __init__(self, *args, **kwargs):
 		Channel.__init__(self, *args, **kwargs)
 
 	def Close(self):
-		print(self, "Client disconnected")
+		if logging:
+			print(self, "Client disconnected")
 		self._server.channel = None
 
 	def Network_change_state(self, data):
-		print("Got", data)
+		if logging:
+			print("Got", data)
 		self._server.competitor_state = data["message"]
 
 	def Network_change_selection(self, data):
-		print("Got", data)
+		if logging:
+			print("Got", data)
 		self._server.competitor_selection = data["message"]
 
 	def Network_query(self, data):
@@ -36,11 +40,23 @@ class RPSServer(Server):
 		self.selection = ""
 		self.competitor_selection = ""
 		self.channel = None
-		print("Server launched")
+		if logging:
+			print("Server launched")
 
 	def Connected(self, channel, addr):
 		self.channel = channel
-		print(channel, "Channel connected")
+		if logging:
+			print(channel, "Channel connected")
+
+	def handle_accept(self):
+		try:
+			conn, addr = self.accept()
+		except Exception as e:
+			return
+		self.channels.append(self.channelClass(conn, addr, self, self._map))
+		self.channels[-1].Send({"action": "connected"})
+		if hasattr(self, "Connected"):
+			self.Connected(self.channels[-1], addr)
 
 	def submit(self):
 		if self.channel == None:
@@ -59,7 +75,8 @@ class RPSClient:
 		self.competitor_state = ""
 		self.selection = ""
 		self.competitor_selection = ""
-		print("RPSClient started")
+		if logging:
+			print("RPSClient started")
 
 	def Connect(self, *args, **kwargs):
 		self.connection = EndPoint()
@@ -79,13 +96,15 @@ class RPSClient:
 		self.connection.Send(data)
 
 	def close(self):
-		print("RPSClient closed")
+		if logging:
+			print("RPSClient closed")
 		if self.connection != None:
 			self.connection.Close()
 			self.connection = None
 
 	def Network_connected(self, data):
-		print("Connected to the server")
+		if logging:
+			print("Connected to the server")
 
 	def Network_error(self, data):
 		self.close()
@@ -94,11 +113,13 @@ class RPSClient:
 		self.close()
 
 	def Network_change_state(self, data):
-		print("Got", data)
+		if logging:
+			print("Got", data)
 		self.competitor_state = data["message"]
 
 	def Network_change_selection(self, data):
-		print("Got", data)
+		if logging:
+			print("Got", data)
 		self.competitor_selection = data["message"]
 
 	def submit(self):
