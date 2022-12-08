@@ -100,6 +100,9 @@ def draw_message(message, background_color, foreground_color, duration):
 def ip_selection_screen(screen: pygame.Surface):
 	"""Uses pygame to ask the user for an IP address and returns the IP. Returns string with IP"""
 
+	# Stub until I can get to it tomorrow, just so it sorta works right now
+	return "127.0.0.1"
+
 	#import socket
 	#host = socket.gethostname()
 	#local_IP = socket.gethostbyname(host)
@@ -137,9 +140,6 @@ def ip_selection_screen(screen: pygame.Surface):
 		screen.blit(surface, (addressbox.x +5, addressbox.y +10))
 		pygame.time.Clock().tick(FRAME_RATE)
 		pygame.display.update()
-
-
-		#return "127.0.0.1"
 
 
 def battle(screen: pygame.Surface, selection: str, competitor_selection: str):
