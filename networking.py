@@ -2,7 +2,7 @@ from PodSixNet.Server import Server
 from PodSixNet.Channel import Channel
 from PodSixNet.EndPoint import EndPoint
 
-logging = False
+logging = True
 
 class RPSChannel(Channel):
 	def __init__(self, *args, **kwargs):
