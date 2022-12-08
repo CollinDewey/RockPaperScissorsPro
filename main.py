@@ -428,7 +428,7 @@ def main_menu(screen: pygame.Surface):
 
 
 if __name__ == "__main__":
-	"""Main :)"""
+	"""Main"""
 	# Window Size
 	global WINDOW_SIZE  # Lazy
 	global FRAME_RATE

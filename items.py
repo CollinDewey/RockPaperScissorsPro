@@ -6,6 +6,7 @@ class Item:
 	def __init__(
 		self, name: str, image_path: str, win: str = "beats", lose: str = "loses to"
 	):
+		"""Create a new item"""
 		self.name = name
 		items[self.name] = self
 		self.image_path = image_path
@@ -14,12 +15,13 @@ class Item:
 		self.defeat_list = None
 
 	def set_defeats(self, *defeats: object):
+		"""Sets which objects are to be defeated"""
 		self.defeat_list = list()
 		for i in defeats:
 			self.defeat_list.append(i.name)
 
 	def defeats(self, item: str):
-		"""Checks if the"""
+		"""Checks if the item is to be defeated"""
 		if item in self.defeat_list:
 			return True
 		return False

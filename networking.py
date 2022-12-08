@@ -49,6 +49,7 @@ class RPSServer(Server):
 			print(channel, "Channel connected")
 
 	def handle_accept(self):
+		"""Taken from PodSixNet, because THEY PUT A PRINT STATEMENT IN HERE????"""
 		try:
 			conn, addr = self.accept()
 		except Exception as e:
