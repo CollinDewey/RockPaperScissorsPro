@@ -282,11 +282,6 @@ def game_screen(screen: pygame.Surface, host: bool):
 			session.close()
 			return
 
-		#
-		# This next section is very temporary
-		# Rock, Paper, and Scissors ( + additional ones ) will be classes
-		#
-
 		# Query for the host state since the RPS could have already been selected
 		if not host and first_run:
 			first_run = False
