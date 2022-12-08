@@ -29,9 +29,9 @@ def main():
 	rock = Item("Rock", "assets/items/rock.png", "smashes")
 	paper = Item("Paper", "assets/items/paper.png")
 	scissors = Item("Scissors", "assets/items/scissors.png", "cuts up")
-	shield = Item("Shield", "protects")
-	boom = Item("Boom", "destroys")
-	pierce = Item("Pierce", "pierces")
+	shield = Item("Shield", "assets/items/shield.png", "protects")
+	boom = Item("Boom", "assets/items/boom.png", "destroys")
+	pierce = Item("Pierce", "assets/items/pierce.png", "pierces")
 
 	rock.set_defeats(scissors, boom, pierce)
 	paper.set_defeats(rock, pierce)
