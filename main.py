@@ -270,17 +270,14 @@ def game_screen(screen: pygame.Surface, host: bool):
 		ip = ip_selection_screen(screen)
 		client = networking.RPSClient(ip, int(25568))
 
+	custom_event = pygame.event.custom_type()
+	pygame.time.set_timer(custom_event, 100)
+
 	# TODO: Check if the connection is closed
 	first_run = True
 	session = server if host else client
 	while True:
 		pygame.Surface.fill(screen, (255, 255, 255))  # Blank out screen with White
-		try:
-			session.Pump()
-		except:
-			# Connection failed, go back to the main menu
-			session.close()
-			return
 
 		# Query for the host state since the RPS could have already been selected
 		if not host and first_run:
@@ -292,6 +289,12 @@ def game_screen(screen: pygame.Surface, host: bool):
 			print("BOTH READY")
 			print("User:", session.selection)
 			print("Opponent:", session.competitor_selection)
+			try:
+				session.Pump()
+			except:
+				return
+
+			pygame.time.set_timer(custom_event, 0)
 			session.close()
 
 			battle(screen, session.selection, session.competitor_selection)
@@ -337,6 +340,14 @@ def game_screen(screen: pygame.Surface, host: bool):
 						session.selection = items[i].name
 						session.state = "ready"
 						session.submit()
+			if event.type == custom_event:
+				try:
+					session.Pump()
+				except:
+					# Connection failed, go back to the main menu
+					pygame.time.set_timer(custom_event, 0)
+					session.close()
+					return
 
 		pygame.time.Clock().tick(FRAME_RATE)
 		pygame.display.update()
