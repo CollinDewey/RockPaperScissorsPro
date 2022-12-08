@@ -20,11 +20,11 @@ except ImportError:
 		result = message_box(
 			None,
 			"Missing required modules, do you want to install these?\nThis will take a minute",
-			"Missing Pygame/Numpy",
+			"Missing Pygame/PodSixNet",
 			4,
 		)
 	else:  # Assume POSIX
-		print("Install missing numpy/pygame libraries? [(Y)es/No]")
+		print("Install missing PodSixNet/pygame libraries? [(Y)es/No]")
 		if input().lower() in {"yes", "ye", "y", ""}:
 			result = 6  # Same as MessageBoxW yes on Win32
 		else:
