@@ -304,137 +304,38 @@ def game_screen(screen: pygame.Surface, host: bool):
 		hover_color = (118, 181, 197)
 		idle_color = (171, 219, 227)
 
-		# Bounding Boxes
-		rock_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 100, 480, 80)
-		paper_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 100 + 100, 480, 80)
-		scissors_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 100 + 200, 480, 80)
-		shield_rect =pygame.Rect((WINDOW_SIZE[0]-480)/2, 100 + 300, 480, 80)
-		boom_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 100 + 400, 480, 80)
-		pierce_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 100 + 500, 480, 80)
-
-		# Cursor logic
 		mouse_pos = pygame.mouse.get_pos()
-		collide_rock = mouse_pos[0] in range(
-			rock_rect.left, rock_rect.right
-		) and mouse_pos[1] in range(rock_rect.top, rock_rect.bottom)
-		collide_paper = mouse_pos[0] in range(
-			paper_rect.left, paper_rect.right
-		) and mouse_pos[1] in range(paper_rect.top, paper_rect.bottom)
-		collide_scissors = mouse_pos[0] in range(
-			scissors_rect.left, scissors_rect.right
-		) and mouse_pos[1] in range(scissors_rect.top, scissors_rect.bottom)
-		collide_shield = mouse_pos[0] in range(
-			shield_rect.left, shield_rect.right
-		) and mouse_pos[1] in range(shield_rect.top, shield_rect.bottom)
-		collide_boom = mouse_pos[0] in range(
-			boom_rect.left, boom_rect.right
-		) and mouse_pos[1] in range(boom_rect.top, boom_rect.bottom)
-		collide_pierce = mouse_pos[0] in range(
-			pierce_rect.left, pierce_rect.right
-		) and mouse_pos[1] in range(pierce_rect.top, pierce_rect.bottom)
+		button_collide = dict()
+		for i,j in enumerate(items):
+
+			# Bounding Boxes & Assets
+			button_rect = pygame.Rect((WINDOW_SIZE[0] - 480) / 2, 100 + 100*i, 480, 80)
+			button_text = render_text(items[j].name.upper(), (0, 0, 0), 45, FONT_NAME)
+
+			# Cursor logic
+			button_collide[j] = button_rect.collidepoint(mouse_pos)
+
+			# Draw/Blit
+			pygame.draw.rect(
+				screen, hover_color if button_collide[j] else idle_color, button_rect, 0, 15
+			)
+			screen.blit(
+				button_text,
+				(
+					button_rect.centerx - button_text.get_width() / 2,
+					button_rect.centery - button_text.get_height() / 2,
+				),
+			)
 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				deinit()
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				if collide_rock:
-					session.selection = "Rock"
-					session.state = "ready"
-					session.submit()
-				elif collide_paper:
-					session.selection = "Paper"
-					session.state = "ready"
-					session.submit()
-				elif collide_scissors:
-					session.selection = "Scissors"
-					session.state = "ready"
-					session.submit()
-				elif collide_shield:
-					session.selection = "Shield"
-					session.state = "ready"
-					session.submit()
-				elif collide_boom:
-					session.selection = "Boom"
-					session.state = "ready"
-					session.submit()
-				elif collide_pierce:
-					session.selection = "Pierce"
-					session.state = "ready"
-					session.submit()
-
-		# Assets
-		rock_text = render_text("ROCK", (0, 0, 0), 45, FONT_NAME)
-		paper_text = render_text("PAPER", (0, 0, 0), 45, FONT_NAME)
-		scissors_text = render_text("SCISSORS", (0, 0, 0), 45, FONT_NAME)
-		shield_text = render_text("SHIELD", (0, 0, 0), 45, FONT_NAME)
-		boom_text = render_text("BOOM", (0, 0, 0), 45, FONT_NAME)
-		pierce_text = render_text("PIERCE", (0, 0, 0), 45, FONT_NAME)
-
-		# Draw/Blit
-		pygame.draw.rect(
-			screen, hover_color if collide_rock else idle_color, rock_rect, 0, 15
-		)  # ROCK
-		pygame.draw.rect(
-			screen, hover_color if collide_paper else idle_color, paper_rect, 0, 15
-		)  # PAPER
-		pygame.draw.rect(
-			screen,
-			hover_color if collide_scissors else idle_color,
-			scissors_rect,
-			0,
-			15,
-		)  # SCISSORS
-		pygame.draw.rect(
-			screen, hover_color if collide_shield else idle_color, shield_rect, 0, 15
-		)  # ROCK
-		pygame.draw.rect(
-			screen, hover_color if collide_boom else idle_color, boom_rect, 0, 15
-		)  # ROCK
-		pygame.draw.rect(
-			screen, hover_color if collide_pierce else idle_color, pierce_rect, 0, 15
-		)  # ROCK
-		screen.blit(
-			rock_text,
-			(
-				rock_rect.centerx - rock_text.get_width() / 2,
-				rock_rect.centery - rock_text.get_height() / 2,
-			),
-		)
-		screen.blit(
-			paper_text,
-			(
-				paper_rect.centerx - paper_text.get_width() / 2,
-				paper_rect.centery - paper_text.get_height() / 2,
-			),
-		)
-		screen.blit(
-			scissors_text,
-			(
-				scissors_rect.centerx - scissors_text.get_width() / 2,
-				scissors_rect.centery - scissors_text.get_height() / 2,
-			),
-		)
-		screen.blit(
-			shield_text,
-			(
-				shield_rect.centerx - shield_text.get_width() / 2,
-				shield_rect.centery - shield_text.get_height() / 2,
-			),
-		)
-		screen.blit(
-			boom_text,
-			(
-				boom_rect.centerx - boom_text.get_width() / 2,
-				boom_rect.centery - boom_text.get_height() / 2,
-			),
-		)
-		screen.blit(
-			pierce_text,
-			(
-				pierce_rect.centerx - pierce_text.get_width() / 2,
-				pierce_rect.centery - pierce_text.get_height() / 2,
-			),
-		)
+				for i in items:
+					if button_collide[i]:
+						session.selection = items[i].name
+						session.state = "ready"
+						session.submit()
 
 		pygame.time.Clock().tick(FRAME_RATE)
 		pygame.display.update()
