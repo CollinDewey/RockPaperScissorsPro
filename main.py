@@ -262,10 +262,17 @@ def battle(screen: pygame.Surface, selection: str, competitor_selection: str):
 def game_screen(screen: pygame.Surface, host: bool):
 	"""Game screen and logic"""
 	if host:
-		server = networking.RPSServer(localaddr=("127.0.0.1", int(25565)))
+		# This is hacky
+		socket_lib = __import__('socket')
+		socket = socket_lib.socket(socket_lib.AF_INET, socket_lib.SOCK_DGRAM)
+		socket.connect(("8.8.8.8", 80)) # Google
+		ip = socket.getsockname()[0]
+		del socket, socket_lib
+
+		server = networking.RPSServer(localaddr=("127.0.0.1", int(25568)))
 	else:
 		ip = ip_selection_screen(screen)
-		client = networking.RPSClient(ip, int(25565))
+		client = networking.RPSClient(ip, int(25568))
 
 	# TODO: Check if the connection is closed
 	first_run = True
@@ -326,6 +333,9 @@ def game_screen(screen: pygame.Surface, host: bool):
 					button_rect.centery - button_text.get_height() / 2,
 				),
 			)
+
+		ip_text = render_text(f"Host: {ip}", (0,0,0), 35, FONT_NAME);
+		screen.blit(ip_text, ((WINDOW_SIZE[0] - ip_text.get_width()) / 2, 0))
 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
